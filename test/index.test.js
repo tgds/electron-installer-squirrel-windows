@@ -6,6 +6,7 @@ var temp = require('temp');
 var async = require('async');
 var assert = require('assert');
 var format = require('util').format;
+var debug = require('debug')('electron-installer-squirrel-windows:test');
 
 var createInstaller = require('../');
 
@@ -28,19 +29,21 @@ describe('electron-installer-squirrel-windows', function() {
     });
   });
   it('creates a nuget package and installer', function(done) {
+    debug('creating installer...');
     createInstaller(app, function(err) {
       if (err) return done(err);
 
       createsPaths = [
-        path.join(app.out, 'foo-bar-1.0.0-full.nupkg'),
-        path.join(app.out, 'FooBarSetup.exe'),
+        // path.join(app.out, 'myapp.0.0.0.nupkg'),
+        path.join(app.out, 'MyAppSetup.exe'),
         path.join(UPDATE_EXE)
       ];
+      debug('checking paths were created', JSON.stringify(createsPaths, null, 2));
       async.parallel(createsPaths.map(function(p) {
         return function(cb) {
           fs.exists(p, function(exists) {
             if (!exists) {
-              return cb(new assert.AssertionError(format('Expected `%s` to exist!', p)));
+              return cb(new Error(format('Expected `%s` to exist!', p)));
             }
             cb();
           });

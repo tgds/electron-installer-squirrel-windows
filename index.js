@@ -174,6 +174,7 @@ function exec(cmd, args, done) {
         if (stderr) {
           console.error(stderr);
         }
+        console.log('stdout', stdout);
         return done(err);
       });
     } catch (e) {
@@ -234,7 +235,12 @@ function createNugetPkg(app, done) {
           '-OutputDirectory',
           app.nuget_out,
           '-NoDefaultExcludes'
-        ], done);
+        ], function(err){
+          if(err) return done(err);
+
+          // @todo: copy .nupkg into `app.out`?
+          done();
+        });
       });
     });
   });
@@ -266,7 +272,7 @@ function createSetupExe(app, done) {
 
   return exec(cmd, args, function(err) {
     if (err) return done(err);
-
+    debug('mv `%s` -> `%s`', path.join(app.out, 'Setup.exe'), app.setup_path);
     fs.rename(path.join(app.out, 'Setup.exe'), app.setup_path, function(err) {
       if (err) return done(err);
       done();
