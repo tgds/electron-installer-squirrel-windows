@@ -2,6 +2,12 @@
 
 Generate Windows installers for [Electron][electron] apps using [Squirrel][squirrel].
 
+## Todo
+
+- Verify tests
+- Make `--overwrite` work
+- Pull `AppModel` into it's own module
+
 ## Installation
 
 ```
@@ -106,16 +112,16 @@ The password to decrypt the certificate given in `cert_path`. [Default: `null`]
 Params to pass to signtool which overrides `cert_path` and `cert_password`.  [Default: `null`]
 
 `setup_icon` - *String*
-URL to the `.ico` file to use as the icon for the generated `Setup.exe`. [Default: `null`]
+URL to the `.ico` file to use as the icon for the generated `Setup.exe`. [Default: `http://git.io/vqdOX` (atom.ico)]
 
 `remote_releases` - *String*
 URL to your existing updates. If given, these will be downloaded to create delta updates. [Default: `null`]
 
 `overwrite` - *Boolean*
-Overwrite existing installers if they already exist.
+Overwrite existing installers if they already exist. [Default: `false`]
 
 `debug` - *Boolean*
-Enable debug message output.
+Enable debug message output. [Default: `false`]
 
 ##### callback
 
