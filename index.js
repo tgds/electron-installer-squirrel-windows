@@ -1,5 +1,5 @@
 var cp = require('child_process');
-var fs = require('fs');
+var fs = require('fs-extra');
 var asar = require('asar');
 var path = require('path');
 var temp = require('temp');
@@ -28,7 +28,6 @@ var createSyncErrback = function(method, model, options) {
     if (success) {
       success(model, resp, options);
     }
-    model.trigger('sync', model, resp, options);
   };
   return function(err, resp) {
     if (err) {
@@ -49,13 +48,7 @@ var App = Model.extend({
     path: 'string',
     // Directory to put installers in.
     out: 'string',
-    company_name: 'string',
-    product_name: {
-      type: 'string',
-      default: function() {
-        return this.name;
-      }
-    },
+    product_name: 'string',
     electron_version: {
       type: 'string',
       default: function() {
@@ -67,38 +60,12 @@ var App = Model.extend({
       }
     },
     authors: 'string',
-    owners: {
-      type: 'string',
-      default: function() {
-        return this.authors;
-      }
-    },
-    title: {
-      type: 'string',
-      default: function() {
-        return this.product_name;
-      }
-    },
-    exe: {
-      type: 'string',
-      default: function() {
-        return format('%s.exe', this.name);
-      }
-    },
-    icon_url: {
-      type: 'string',
-      default: function() {
-        return 'https://raw.githubusercontent.com/atom/electron/'
-          + 'master/atom/browser/resources/win/atom.ico';
-      }
-    },
+    owners: 'string',
+    title: 'string',
+    exe: 'string',
+    icon_url: 'string',
     setup_icon: 'string',
-    loading_gif: {
-      type: 'string',
-      default: function() {
-        return path.resolve(__dirname, 'resources', 'install-spinner.gif');
-      }
-    },
+    loading_gif: 'string',
     remote_releases: 'string'
   },
   derived: {
@@ -122,12 +89,39 @@ var App = Model.extend({
     }
   },
   parse: function(resp) {
-    resp.product_name = resp.product_name || resp.productName;
+    resp.product_name = resp.product_name || resp.productName || resp.name;
     resp.icon_url = resp.icon_url || resp.iconUrl;
 
     if (!resp.authors) {
       resp.authors = resp.author ? resp.author.name : '';
     }
+    if (!resp.exe) {
+      resp.exe = format('%s.exe', resp.name);
+    }
+
+    resp.loading_gif = resp.loading_gif || resp.loadingGif;
+    if (!resp.loading_gif) {
+      resp.loading_gif = path.resolve(__dirname, 'resources', 'install-spinner.gif');
+    }
+
+    if (!resp.owners) {
+      resp.owners = resp.authors;
+    }
+
+    if (!resp.title) {
+      resp.title = resp.product_name;
+    }
+
+    resp.icon_url = resp.icon_url || resp.iconUrl;
+    if (!resp.icon_url) {
+      resp.icon_url = 'https://raw.githubusercontent.com/atom/electron/'
+        + 'master/atom/browser/resources/win/atom.ico';
+    }
+
+    if (!resp.copyright) {
+      resp.copyright = format('%s %s', new Date().getFullYear(), resp.owners);
+    }
+
     resp.version = resp.version.replace(/-.*$/, '');
     return resp;
   },
@@ -137,7 +131,7 @@ var App = Model.extend({
       if (exists) {
         done(null, JSON.parse(asar.extractFile(this.asar, 'package.json')));
       } else {
-        fs.readFile(path.join(this.resources, 'package.json'), function(err, buf) {
+        fs.readFile(path.join(this.resources, 'app', 'package.json'), function(err, buf) {
           if (err) return done(err);
 
           done(null, JSON.parse(buf));
@@ -149,11 +143,14 @@ var App = Model.extend({
     if (!fn) return;
 
     this.on('sync', function(model) {
+      debug('loaded model', JSON.stringify(model.toJSON(), null, 2));
       fn(null, model);
     });
     this.on('error', function(model, err) {
+      debug('error fetching model', err);
       fn(err);
     });
+    debug('fetching app model');
     this.fetch();
   }
 });
@@ -163,12 +160,26 @@ const SYNC_RELEASES_EXE = path.resolve(__dirname, 'vendor', 'SyncReleases.exe');
 const UPDATE_EXE = path.resolve(__dirname, 'vendor', 'Update.exe');
 
 function exec(cmd, args, done) {
-  debug('exec `%s` with args `%s`', cmd, args);
-  return cp.execFile(cmd, args, function(err, stdout, stderr) {
-    if (stderr) {
-      console.error(stderr);
+  debug('exec `%s` with args `%s`', cmd, args.join(' '));
+
+  fs.exists(cmd, function(exists) {
+    if (!exists) {
+      return done(new Error('File does not exist at ' + cmd));
     }
-    return done(err);
+    try {
+      cp.execFile(cmd, args, function(err, stdout, stderr) {
+        if (err) {
+          console.error('Error ', err);
+        }
+        if (stderr) {
+          console.error(stderr);
+        }
+        return done(err);
+      });
+    } catch (e) {
+      console.error('Error executing file:', e);
+      done(new Error('Could not execute ' + cmd));
+    }
   });
 }
 
@@ -209,9 +220,12 @@ function createNugetPkg(app, done) {
     fs.writeFile(app.nuspec_path, nuspecContent, function(err) {
       if (err) return done(err);
 
-      fs.copy(UPDATE_EXE, path.join(app.path, 'Update.exe'), function(err) {
+      var dest = path.join(app.path, 'Update.exe');
+      debug('copying `%s` -> `%s`', UPDATE_EXE, dest);
+      fs.copy(UPDATE_EXE, dest, function(err) {
         if (err) return done(err);
 
+        debug('generating `%s`...', app.nuget_out);
         exec(NUGET_EXE, [
           'pack',
           app.nuspec_path,
@@ -252,6 +266,7 @@ function createSetupExe(app, done) {
 
   return exec(cmd, args, function(err) {
     if (err) return done(err);
+
     fs.rename(path.join(app.out, 'Setup.exe'), app.setup_path, function(err) {
       if (err) return done(err);
       done();
@@ -261,8 +276,9 @@ function createSetupExe(app, done) {
 
 
 module.exports = function(opts, done) {
+  debug('generating squirrel-windows installer for', JSON.stringify(opts, null, 2));
   var app = new App(opts, function(err) {
-    if(err) return done(err);
+    if (err) return done(err);
     series([
       createTempDirectory.bind(null, app),
       createNugetPkg.bind(null, app),
