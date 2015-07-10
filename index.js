@@ -96,7 +96,7 @@ var App = Model.extend({
       resp.authors = resp.author ? resp.author.name : '';
     }
     if (!resp.exe) {
-      resp.exe = format('%s.exe', resp.name);
+      resp.exe = format('%s.exe', resp.product_name);
     }
 
     resp.loading_gif = resp.loading_gif || resp.loadingGif;
