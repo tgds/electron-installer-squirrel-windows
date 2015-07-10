@@ -1,4 +1,4 @@
-spec
-*.coffee
+.eslintrc
+.jsfmtrc
 appveyor.yml
-.npmignore
+test
