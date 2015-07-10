@@ -117,7 +117,7 @@ var App = State.extend({
     setup_path: {
       deps: ['out', 'product_name'],
       fn: function() {
-        return path.join(this.out, format('%s Setup.exe', this.product_name));
+        return path.join(this.out, format('%sSetup.exe', this.product_name.replace(/ /g, '')));
       }
     }
   },

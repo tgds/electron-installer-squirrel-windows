@@ -5,21 +5,23 @@ var async = require('async');
 var assert = require('assert');
 var format = require('util').format;
 
-var createInstaller = require('./');
+var createInstaller = require('../');
 
+var app = {
+  path: require('electron-installer-fixture-windows')
+};
+const UPDATE_EXE = path.join(app.path, 'Update.exe');
+
+var createsPaths = [];
 describe('electron-installer-squirrel-windows', function() {
-  var app = {
-    path: path.join(__dirname, 'fixtures', 'app', 'resources', 'app', 'package.json')
-  };
   before(function(done) {
     temp.mkdir('electron-installer-squirrel-windows', function(err, out) {
       if (err) return done(err);
 
       app.out = out;
-      var updateExePath = path.join(__dirname, 'fixtures', 'app', 'Update.exe');
-      fs.exists(updateExePath, function(exists) {
+      fs.exists(UPDATE_EXE, function(exists) {
         if (!exists) return done();
-        fs.unlink(updateExePath, done);
+        fs.unlink(UPDATE_EXE, done);
       });
     });
   });
@@ -27,12 +29,12 @@ describe('electron-installer-squirrel-windows', function() {
     createInstaller(app, function(err) {
       if (err) return done(err);
 
-      var expectedPaths = [
-        path.join(app.out, 'myapp-1.0.0-full.nupkg'),
-        path.join(app.out, 'MyAppSetup.exe'),
-        path.join(__dirname, 'fixtures', 'app', 'Update.exe')
+      createsPaths = [
+        path.join(app.out, 'foo-bar-1.0.0-full.nupkg'),
+        path.join(app.out, 'FooBarSetup.exe'),
+        path.join(UPDATE_EXE)
       ];
-      async.parallel(expectedPaths.map(function(p) {
+      async.parallel(createsPaths.map(function(p) {
         return function(cb) {
           fs.exists(p, function(exists) {
             if (!exists) {
@@ -43,5 +45,14 @@ describe('electron-installer-squirrel-windows', function() {
         };
       }), done);
     });
+  });
+  after(function(done) {
+    async.parallel(createsPaths.map(function(p) {
+      return function(cb) {
+        fs.unlink(p, function() {
+          cb();
+        });
+      };
+    }), done);
   });
 });
