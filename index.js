@@ -10,7 +10,7 @@ var _template = require('lodash.template');
 
 temp.track();
 
-var State = require('ampersand-state');
+var Model = require('ampersand-model');
 
 // @todo (imlucas): move this to `ampersand-sync-errback`
 var createSyncErrback = function(method, model, options) {
@@ -39,7 +39,7 @@ var createSyncErrback = function(method, model, options) {
   };
 };
 
-var App = State.extend({
+var App = Model.extend({
   props: {
     name: 'string',
     version: 'string',
@@ -163,16 +163,18 @@ const SYNC_RELEASES_EXE = path.resolve(__dirname, 'vendor', 'SyncReleases.exe');
 const UPDATE_EXE = path.resolve(__dirname, 'vendor', 'Update.exe');
 
 function exec(cmd, args, done) {
-  return cp.execFile(cmd, args, function(error, stdout, stderr) {
+  debug('exec `%s` with args `%s`', cmd, args);
+  return cp.execFile(cmd, args, function(err, stdout, stderr) {
     if (stderr) {
       console.error(stderr);
     }
-    return done(error);
+    return done(err);
   });
 }
 
 function syncReleases(app, done) {
   if (!app.remote_releases) {
+    debug('no remote releases.  skipping sync.');
     return process.nextTick(function() {
       return done();
     });
@@ -182,13 +184,13 @@ function syncReleases(app, done) {
 }
 
 function createTempDirectory(app, done) {
+  debug('creating temp directory');
   temp.mkdir('electron-installer-squirrel-windows-', function(err, res) {
     if (err) return done(err);
 
     app.nuget_out = res;
     app.nuspec_path = path.join(app.nuget_out, format('%s.nuspec', app.name));
     app.nupkg_path = path.join(app.nuget_out, format('%s.%s.nupkg', app.name, app.version));
-
     done();
   });
 }
@@ -259,8 +261,8 @@ function createSetupExe(app, done) {
 
 
 module.exports = function(opts, done) {
-  var app = new App(opts);
-  app.on('sync', function() {
+  var app = new App(opts, function(err) {
+    if(err) return done(err);
     series([
       createTempDirectory.bind(null, app),
       createNugetPkg.bind(null, app),
@@ -268,5 +270,4 @@ module.exports = function(opts, done) {
       createSetupExe.bind(null, app)
     ], done);
   });
-  app.fetch();
 };
