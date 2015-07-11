@@ -38,6 +38,7 @@ var createSyncErrback = function(method, model, options) {
   };
 };
 
+// @todo (imlucas): move this to `electron-installer-model`
 var App = Model.extend({
   props: {
     name: 'string',
@@ -66,7 +67,11 @@ var App = Model.extend({
     icon_url: 'string',
     setup_icon: 'string',
     loading_gif: 'string',
-    remote_releases: 'string'
+    remote_releases: 'string',
+    overwrite: {
+      type: 'boolean',
+      default: false
+    }
   },
   derived: {
     asar: {
@@ -82,9 +87,27 @@ var App = Model.extend({
       }
     },
     setup_path: {
-      deps: ['out', 'product_name'],
+      deps: ['out', 'setup_filename'],
       fn: function() {
-        return path.join(this.out, format('%sSetup.exe', this.product_name.replace(/ /g, '')));
+        return path.join(this.out, this.setup_filename);
+      }
+    },
+    setup_filename: {
+      deps: ['product_name'],
+      fn: function() {
+        return format('%sSetup.exe', this.product_name.replace(/ /g, ''));
+      }
+    },
+    nuspec_filename: {
+      deps: ['name'],
+      fn: function() {
+        return format('%s.nuspec', this.name);
+      }
+    },
+    nupkg_filename: {
+      deps: ['name', 'version'],
+      fn: function() {
+        return format('%s.%s.nupkg', this.name, this.version);
       }
     }
   },
@@ -201,8 +224,8 @@ function createTempDirectory(app, done) {
     if (err) return done(err);
 
     app.nuget_out = res;
-    app.nuspec_path = path.join(app.nuget_out, format('%s.nuspec', app.name));
-    app.nupkg_path = path.join(app.nuget_out, format('%s.%s.nupkg', app.name, app.version));
+    app.nuspec_path = path.join(app.nuget_out, app.nuspec_filename);
+    app.nupkg_path = path.join(app.nuget_out, app.nupkg_filename);
     done();
   });
 }
@@ -235,12 +258,7 @@ function createNugetPkg(app, done) {
           '-OutputDirectory',
           app.nuget_out,
           '-NoDefaultExcludes'
-        ], function(err) {
-          if (err) return done(err);
-
-          // @todo: copy .nupkg into `app.out`?
-          done();
-        });
+        ], done);
       });
     });
   });
@@ -280,12 +298,42 @@ function createSetupExe(app, done) {
   });
 }
 
+// @todo (imlucas): Move to its own module `electron-installer-overwrite-check`
+function checkForExisting(app, done) {
+  var check = function(filename) {
+    return function(cb) {
+      var src = path.join(app.out, filename);
+
+      fs.exists(src, function(exists) {
+        if (!exists) return cb();
+
+        if (exists && !app.overwrite) {
+          var msg = format('`%s` already exists!'
+            + ' Run electron-installer-squirrel-windows again with'
+            + ' `--overwrite` or just remove the file at `%s` yourself'
+            + ' and run again.', filename, src);
+          return cb(new Error(msg));
+        }
+        debug('Removing existing `%s`', filename);
+        fs.unlink(src, cb);
+      });
+    };
+  };
+
+  series([
+    check(app.nupkg_filename),
+    check(app.setup_filename),
+    check('RELEASES')
+  ], done);
+}
+
 
 module.exports = function(opts, done) {
   debug('generating squirrel-windows installer for', JSON.stringify(opts, null, 2));
   var app = new App(opts, function(err) {
     if (err) return done(err);
     series([
+      checkForExisting.bind(null, app),
       createTempDirectory.bind(null, app),
       createNugetPkg.bind(null, app),
       syncReleases.bind(null, app),
