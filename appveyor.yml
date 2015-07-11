@@ -1,12 +1,5 @@
-init:
-  - git config --global core.autocrlf input
-
-environment:
-  matrix:
-    - nodejs_version: 0.10
-
 install:
-  - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version)
+  - ps: Install-Product node 0.10
   - npm install
 
 build: off

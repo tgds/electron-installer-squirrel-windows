@@ -1,5 +1,3 @@
-process.env.DEBUG = '*';
-
 var fs = require('fs');
 var path = require('path');
 var temp = require('temp');
