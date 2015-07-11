@@ -4,8 +4,6 @@ Generate Windows installers for [Electron][electron] apps using [Squirrel][squir
 
 ## Todo
 
-- Verify tests
-- Make `--overwrite` work
 - Pull `AppModel` into it's own module
 
 ## Installation
@@ -130,10 +128,13 @@ Contains errors if any.
 
 ## License
 
-Apache 2.0
+Relicensed under Apache 2.0 Copyright (c) 2015 MongoDB Inc.
+
+Based on [atom/grunt-electron-installer][original] Copyright (c) 2015 GitHub Inc.
 
 [appveyor_img]: https://ci.appveyor.com/api/projects/status/157smy0vsosp72bu/branch/master?svg=true
 [appveyor_url]: https://ci.appveyor.com/project/mongodb-js/electron-installer-squirrel-windows/branch/master
 [electron]: https://github.com/atom/electron
 [squirrel]: https://github.com/Squirrel/Squirrel.Windows
+[original]: https://github.com/atom/grunt-electron-installer
 [electron-squirrel-startup]: https://github.com/mongodb-js/electron-squirrel-startup
