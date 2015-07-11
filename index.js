@@ -235,8 +235,8 @@ function createNugetPkg(app, done) {
           '-OutputDirectory',
           app.nuget_out,
           '-NoDefaultExcludes'
-        ], function(err){
-          if(err) return done(err);
+        ], function(err) {
+          if (err) return done(err);
 
           // @todo: copy .nupkg into `app.out`?
           done();
