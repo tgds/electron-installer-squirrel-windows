@@ -34,7 +34,7 @@ describe('electron-installer-squirrel-windows', function() {
 
       setTimeout(function() {
         createsPaths = [
-          path.join(app.out, 'myapp.0.0.0.nupkg'),
+          path.join(app.out, 'myapp-0.0.0-full.nupkg'),
           path.join(app.out, 'MyAppSetup.exe'),
           path.join(app.out, 'RELEASES'),
           path.join(UPDATE_EXE)
