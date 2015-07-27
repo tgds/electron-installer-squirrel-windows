@@ -67,6 +67,9 @@ var App = Model.extend({
     icon_url: 'string',
     setup_icon: 'string',
     loading_gif: 'string',
+    cert_path: 'string',
+    cert_password: 'string',
+    sign_with_params: 'string',
     remote_releases: 'string',
     overwrite: {
       type: 'boolean',
