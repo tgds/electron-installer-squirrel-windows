@@ -47,26 +47,26 @@ describe('electron-installer-squirrel-windows', function() {
       new Model(src, function(err, app) {
         assert.ifError(err);
 
-        assert.equal(app.name, 'FooBar');
+        assert.equal(app.name, 'Myapp');
         assert.equal(app.version, '0.0.0');
         assert.equal(app.description, 'A fixture Electron app for testing app packaging.');
         assert.equal(app.copyright, '2015 Arlo Basil');
         assert.equal(app.path, path.join(src));
-        assert.equal(app.product_name, 'Foo Bar');
+        assert.equal(app.product_name, 'MyApp');
         assert.equal(app.electron_version, '0.29.2');
         assert.equal(app.authors, 'Arlo Basil');
         assert.equal(app.owners, 'Arlo Basil');
-        assert.equal(app.title, 'Foo Bar');
-        assert.equal(app.exe, 'FooBar.exe');
+        assert.equal(app.title, 'MyApp');
+        assert.equal(app.exe, 'Myapp.exe');
         assert.equal(app.icon_url, defaults.ICON_URL);
         assert.equal(app.loading_gif, defaults.LOADING_GIF);
-        assert.equal(app.setup_filename, 'FooBarSetup.exe');
-        assert.equal(app.nuget_id, 'FooBar');
+        assert.equal(app.setup_filename, 'MyappSetup.exe');
+        assert.equal(app.nuget_id, 'Myapp');
         assert.equal(app.overwrite, false);
         assert.equal(app.asar, path.join(src, 'resources', 'app.asar'));
         assert.equal(app.resources, path.join(src, 'resources'));
-        assert.equal(app.nuspec_filename, 'FooBar.nuspec');
-        assert.equal(app.nupkg_filename, 'FooBar.0.0.0.nupkg');
+        assert.equal(app.nuspec_filename, 'Myapp.nuspec');
+        assert.equal(app.nupkg_filename, 'Myapp.0.0.0.nupkg');
 
         done();
       });
@@ -85,11 +85,11 @@ describe('electron-installer-squirrel-windows', function() {
           assert.equal(app.description, 'A fixture Electron app for testing app packaging.');
           assert.equal(app.copyright, '2015 Arlo Basil');
           assert.equal(app.path, path.join(options.path));
-          assert.equal(app.product_name, 'Foo Bar');
+          assert.equal(app.product_name, 'MyApp');
           assert.equal(app.electron_version, '0.29.2');
           assert.equal(app.authors, 'Arlo Basil');
           assert.equal(app.owners, 'Arlo Basil');
-          assert.equal(app.title, 'Foo Bar');
+          assert.equal(app.title, 'MyApp');
           assert.equal(app.exe, 'HelloEarl.exe');
           assert.equal(app.icon_url, defaults.ICON_URL);
           assert.equal(app.loading_gif, defaults.LOADING_GIF);
@@ -107,31 +107,31 @@ describe('electron-installer-squirrel-windows', function() {
       it('should allow overriding only the `nuget_id`', function(done) {
         var options = {
           path: require('electron-installer-fixture-windows'),
-          nuget_id: 'foo.bar'
+          nuget_id: 'company_name.foobar'
         };
         new Model(options, function(err, app) {
           assert.ifError(err);
 
-          assert.equal(app.name, 'FooBar');
+          assert.equal(app.name, 'Myapp');
           assert.equal(app.version, '0.0.0');
           assert.equal(app.description, 'A fixture Electron app for testing app packaging.');
           assert.equal(app.copyright, '2015 Arlo Basil');
           assert.equal(app.path, path.join(options.path));
-          assert.equal(app.product_name, 'Foo Bar');
+          assert.equal(app.product_name, 'MyApp');
           assert.equal(app.electron_version, '0.29.2');
           assert.equal(app.authors, 'Arlo Basil');
           assert.equal(app.owners, 'Arlo Basil');
-          assert.equal(app.title, 'Foo Bar');
-          assert.equal(app.exe, 'FooBar.exe');
+          assert.equal(app.title, 'MyApp');
+          assert.equal(app.exe, 'Myapp.exe');
           assert.equal(app.icon_url, defaults.ICON_URL);
           assert.equal(app.loading_gif, defaults.LOADING_GIF);
-          assert.equal(app.setup_filename, 'FooBarSetup.exe');
-          assert.equal(app.nuget_id, 'foo.bar');
+          assert.equal(app.setup_filename, 'MyappSetup.exe');
+          assert.equal(app.nuget_id, 'company_name.foobar');
           assert.equal(app.overwrite, false);
           assert.equal(app.asar, path.join(options.path, 'resources', 'app.asar'));
           assert.equal(app.resources, path.join(options.path, 'resources'));
-          assert.equal(app.nuspec_filename, 'foo.bar.nuspec');
-          assert.equal(app.nupkg_filename, 'foo.bar.0.0.0.nupkg');
+          assert.equal(app.nuspec_filename, 'company_name.foobar.nuspec');
+          assert.equal(app.nupkg_filename, 'company_name.foobar.0.0.0.nupkg');
 
           done();
         });
