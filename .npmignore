@@ -2,3 +2,4 @@
 .jsfmtrc
 appveyor.yml
 test
+coverage
