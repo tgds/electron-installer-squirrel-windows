@@ -335,6 +335,16 @@ module.exports = function(opts, done) {
   debug('generating squirrel-windows installer for', JSON.stringify(opts, null, 2));
   var app = new App(opts, function(err) {
     if (err) return done(err);
+
+    // TEST FOR: APP munged value of "exe"
+    if (opts.exe) {
+      if (app.exe !== opts.exe) {
+        debug('app.exe (%s) !== opts.exe (%s)', app.exe, opts.exe);
+        debug('RESETTING app.exe = %s', opts.exe);
+        app.exe = opts.exe;
+      }
+    }
+
     series([
       checkForExisting.bind(null, app),
       createTempDirectory.bind(null, app),
