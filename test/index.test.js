@@ -144,6 +144,8 @@ describe('electron-installer-squirrel-windows', function() {
     });
   });
   describe('commands', function() {
+    // @todo (imlucas): Use `proxyquire` to check that all the child_process
+    // commands are actually correct.
     it('should have correct paths for all bundled assets', function(done) {
       var assets = [
         'NUGET_EXE',
