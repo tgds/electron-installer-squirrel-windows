@@ -44,6 +44,8 @@ describe('electron-installer-squirrel-windows', function() {
     });
     it('should work', function(done) {
       var src = require('electron-installer-fixture-windows');
+      var out = path.resolve(src, '..');
+
       new Model(src, function(err, app) {
         assert.ifError(err);
 
@@ -67,6 +69,9 @@ describe('electron-installer-squirrel-windows', function() {
         assert.equal(app.resources, path.join(src, 'resources'));
         assert.equal(app.nuspec_filename, 'Myapp.nuspec');
         assert.equal(app.nupkg_filename, 'Myapp.0.0.0.nupkg');
+
+        // it should always set `out` or commands will fail...
+        assert.equal(app.out, out);
 
         done();
       });
