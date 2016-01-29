@@ -94,7 +94,7 @@ The name of your app's main `.exe` file. [Default: `#{product_name}Setup.exe`]
 `description` - *String*
 The description value for the nuget package metadata. [Default: ``]
 
-`version` - *String*
+`appversion` - *String*
 The version value for the nuget package metadata.
 
 `title` - *String*

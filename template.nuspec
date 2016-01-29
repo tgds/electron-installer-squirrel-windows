@@ -3,7 +3,7 @@
   <metadata>
     <id><%- name %></id>
     <title><%- title %></title>
-    <version><%- version %></version>
+    <version><%- appversion %></version>
     <authors><%- authors %></authors>
     <owners><%- owners %></owners>
     <iconUrl><%- icon_url %></iconUrl>
