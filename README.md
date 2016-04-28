@@ -1,5 +1,5 @@
 # electron-installer-squirrel-windows [![][appveyor_img]][appveyor_url]
-
+Fork to allow prerelease versions and other needed updates.
 Generate Windows installers for [Electron][electron] apps using [Squirrel][squirrel].
 
 ## Todo
