@@ -141,6 +141,39 @@ describe('electron-installer-squirrel-windows', function() {
           done();
         });
       });
+      it('should allow overriding only the `version` of the generated nuget package', function(done) {
+        var options = {
+          path: require('electron-installer-fixture-windows'),
+          appversion: '2.0.0'
+        };
+        new Model(options, function(err, app) {
+          assert.ifError(err);
+
+          assert.equal(app.name, 'Myapp');
+          assert.equal(app.version, '0.0.0');
+          assert.equal(app.appversion, '2.0.0');
+          assert.equal(app.description, 'A fixture Electron app for testing app packaging.');
+          assert.equal(app.copyright, '2016 Arlo Basil');
+          assert.equal(app.path, path.join(options.path));
+          assert.equal(app.product_name, 'MyApp');
+          assert.equal(app.electron_version, '0.29.2');
+          assert.equal(app.authors, 'Arlo Basil');
+          assert.equal(app.owners, 'Arlo Basil');
+          assert.equal(app.title, 'MyApp');
+          assert.equal(app.exe, 'Myapp.exe');
+          assert.equal(app.icon_url, defaults.ICON_URL);
+          assert.equal(app.loading_gif, defaults.LOADING_GIF);
+          assert.equal(app.setup_filename, 'MyappSetup.exe');
+          assert.equal(app.nuget_id, 'Myapp');
+          assert.equal(app.overwrite, false);
+          assert.equal(app.asar, path.join(options.path, 'resources', 'app.asar'));
+          assert.equal(app.resources, path.join(options.path, 'resources'));
+          assert.equal(app.nuspec_filename, 'Myapp.nuspec');
+          assert.equal(app.nupkg_filename, 'Myapp.2.0.0.nupkg');
+
+          done();
+        });
+      });
     });
   });
   describe('commands', function() {

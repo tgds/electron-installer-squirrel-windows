@@ -1,5 +1,5 @@
 # electron-installer-squirrel-windows [![][appveyor_img]][appveyor_url]
-
+Fork to allow prerelease versions and other needed updates.
 Generate Windows installers for [Electron][electron] apps using [Squirrel][squirrel].
 
 ## Todo
@@ -94,7 +94,7 @@ The name of your app's main `.exe` file. [Default: `#{product_name}Setup.exe`]
 `description` - *String*
 The description value for the nuget package metadata. [Default: ``]
 
-`version` - *String*
+`appversion` - *String*
 The version value for the nuget package metadata.
 
 `title` - *String*
