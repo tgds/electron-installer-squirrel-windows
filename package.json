@@ -1,5 +1,5 @@
 {
-  "name": "electron-installer-squirrel-windows",
+  "name": "@zwodder/electron-installer-squirrel-windows",
   "version": "1.3.0",
   "description": "Generate Windows installers for Electron apps using Squirrel.",
   "author": "Lucas Hrabovsky <lucas@mongodb.com> (http://imlucas.com)",
